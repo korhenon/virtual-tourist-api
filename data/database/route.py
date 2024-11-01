@@ -11,6 +11,10 @@ class RouteDataSource:
         return list(author.routes)
 
     @staticmethod
+    def get_routes_with_limit() -> [RouteDB]:
+        return list(RouteDB.select().limit(10))
+
+    @staticmethod
     def get_route_by_id(_id: int) -> Optional[RouteDB]:
         try:
             return RouteDB.get(RouteDB.id == _id)
