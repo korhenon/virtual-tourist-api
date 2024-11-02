@@ -20,3 +20,15 @@ class SubscriptionDataSource:
             return True
         except peewee.DoesNotExist:
             return False
+
+    @staticmethod
+    def check_subscription(user: UserDB, author: AuthorDB) -> bool:
+        try:
+            SubscriptionDB.get((SubscriptionDB.user == user) & (SubscriptionDB.author == author))
+            return True
+        except peewee.DoesNotExist:
+            return False
+
+    @staticmethod
+    def get_subscribers_count(author: AuthorDB) -> int:
+        return int(author.subscriptions.count())

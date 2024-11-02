@@ -1,7 +1,8 @@
 import datetime
 import math
 
-from common.dto import TimeForReservationDto, SlotWithReservationsDto
+from common.dto import TimeForReservationDto, SlotWithReservationsDto, RouteForUser
+from common.serializer import serialize_to_route_dto, serialize_to_author_dto
 from data.database.author import AuthorDataSource
 from data.database.reservations import ReservationsDataSource
 from data.database.route import RouteDataSource
@@ -97,7 +98,8 @@ class UserRepository:
                 times += self.get_times_for_gap(last_end, self.get_minutes_from_time(reservation.start), route.time)
                 last_end = self.get_minutes_from_time(reservation.start) + reservation.route.time
             times += self.get_times_for_gap(last_end, self.get_minutes_from_time(slot.end), route.time)
-            slots_with_reservation_times.append(SlotWithReservationsDto(slot.id, slot.date, times))
+            if len(times) > 0:
+                slots_with_reservation_times.append(SlotWithReservationsDto(slot.id, slot.date, times))
         return slots_with_reservation_times
 
     def create_reservation(self, token: str, body: ReservationBody):
@@ -127,3 +129,13 @@ class UserRepository:
             else:
                 raise ThisTimeAlreadyReserved
         self.reds.create(user, route, body.start, slot)
+
+    def get_routes(self, token: str) -> list[RouteForUser]:
+        user = self.uds.get_user_by_email(self.ar.authorize(token).credentials.email)
+        routes = list(map(lambda x: RouteForUser(
+            serialize_to_route_dto(x),
+            serialize_to_author_dto(x.author),
+            self.sds.get_subscribers_count(x.author),
+            self.sds.check_subscription(user, x.author)
+        ), self.rds.get_routes()))
+        return routes

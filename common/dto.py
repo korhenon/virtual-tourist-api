@@ -47,3 +47,12 @@ class SlotWithReservationsDto:
     slot_id: int
     date: datetime.date
     times: list[TimeForReservationDto]
+
+
+@dataclass
+class RouteForUser:
+    route: RouteDto
+    author: AuthorDto
+    author_subscribers: int
+    is_user_subscribed: bool
+    mean_mark: float = 4.5
