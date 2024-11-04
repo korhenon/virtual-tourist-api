@@ -8,4 +8,5 @@ from data.database.models.work_slot import WorkSlotDB
 
 
 def setup_database():
+    db.connect()
     db.create_tables([UserDB, AuthorDB, RouteDB, SubscriptionDB, WorkSlotDB, ReservationDB])

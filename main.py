@@ -2,11 +2,10 @@ from fastapi import FastAPI
 
 from data import setup_environment
 from data.database import setup_database
-
 from router.auth.router import router as auth
 from router.author.router import router as author
-from router.user.router import router as user
 from router.files.router import router as files
+from router.user.router import router as user
 
 setup_environment()
 setup_database()
