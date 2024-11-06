@@ -14,7 +14,7 @@ class FileDataSource:
         return file.id
 
     @staticmethod
-    def get_file(_id: int) -> Optional[bytes]:
+    def get_file(_id: int) -> Optional[FileDB]:
         try:
             return FileDB.get(FileDB.id == _id).content
         except peewee.DoesNotExist:

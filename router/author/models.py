@@ -14,7 +14,7 @@ class CreateRouteBody(BaseModel):
     description: str
     start_latitude: float
     start_longitude: float
-    photo: str
+    photo: int
 
 
 class UpdateRouteBody(BaseModel):
@@ -34,7 +34,7 @@ class Route(BaseModel):
     description: str
     start_latitude: float
     start_longitude: float
-    photo: str
+    photo: int
 
 
 class RoutesResponse(BaseModel):

@@ -20,4 +20,4 @@ class FilesRepository:
         path = self.ds.get_file(file)
         if path is None:
             raise FileNotFound
-        return path
+        return path.content

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Response
 
 from data.database.author import AuthorDataSource
+from data.database.file import FileDataSource
 from data.database.route import RouteDataSource
 from data.database.user import UserDataSource
 from data.database.work_slot import WorkSlotDataSource
@@ -8,13 +9,14 @@ from repository.auth import AuthRepository, NotAuthorized, UserDoesntHaveChannel
 from repository.author import AuthorRepository, UserAlreadyHaveChannel, YouDontAuthorOfThisRoute, RouteDoesntExists, \
     ThisDateAlreadyBooked, SlotCanBeCreatedOnlyInFuture, StartShouldBeLessThanEnd, SlotDoesntExists, \
     YouDontAuthorOfThisSlot
+from repository.files import FileNotFound
 from router.author.models import CreateChannelBody, CreateRouteBody, UpdateRouteBody, DeleteBody, RoutesResponse, \
     Route, CreateWorkSlotBody, UpdateWorkSlotBody
 from router.models import TokenHeader, MessageResponse
 
 repository = AuthorRepository(AuthorDataSource(), UserDataSource(),
                               AuthRepository(UserDataSource(), AuthorDataSource()), RouteDataSource(),
-                              WorkSlotDataSource())
+                              WorkSlotDataSource(), FileDataSource())
 router = APIRouter(prefix="/author", tags=["Author"])
 
 
@@ -45,9 +47,9 @@ async def get_routes(response: Response, token: TokenHeader = None) -> RoutesRes
             photo=x.photo
         ), repository.get_routes(token)))
         return RoutesResponse(message="Успех!", routes=routes)
-    except UserAlreadyHaveChannel:
+    except UserDoesntHaveChannel:
         response.status_code = 400
-        return RoutesResponse(message="Этот пользователь уже имеет канал!")
+        return RoutesResponse(message="Пользователь не имеет канала!")
     except NotAuthorized:
         response.status_code = 401
         return RoutesResponse(message="Не авторизованный запрос!")
@@ -64,6 +66,9 @@ async def create_route(body: CreateRouteBody, response: Response, token: TokenHe
     except UserDoesntHaveChannel:
         response.status_code = 400
         return MessageResponse(message="Пользователь не имеет канала!")
+    except FileNotFound:
+        response.status_code = 400
+        return MessageResponse(message="Файл фотографии не найден!")
 
 
 @router.put("/route")
@@ -83,6 +88,9 @@ async def update_route(body: UpdateRouteBody, response: Response, token: TokenHe
     except UserDoesntHaveChannel:
         response.status_code = 400
         return MessageResponse(message="Пользователь не имеет канала!")
+    except FileNotFound:
+        response.status_code = 400
+        return MessageResponse(message="Файл фотографии не найден!")
 
 
 @router.delete("/route")

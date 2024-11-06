@@ -3,10 +3,12 @@ import datetime
 from common.dto import RouteDto
 from common.serializer import serialize_to_route_dto
 from data.database.author import AuthorDataSource
+from data.database.file import FileDataSource
 from data.database.route import RouteDataSource
 from data.database.user import UserDataSource
 from data.database.work_slot import WorkSlotDataSource
 from repository.auth import AuthRepository
+from repository.files import FileNotFound
 from router.author.models import CreateChannelBody, CreateRouteBody, UpdateRouteBody, DeleteBody, \
     CreateWorkSlotBody, UpdateWorkSlotBody
 
@@ -45,12 +47,14 @@ class YouDontAuthorOfThisSlot(Exception):
 
 class AuthorRepository:
     def __init__(self, datasource: AuthorDataSource, user_datasource: UserDataSource,
-                 auth_repository: AuthRepository, route_datasource: RouteDataSource, wsds: WorkSlotDataSource) -> None:
+                 auth_repository: AuthRepository, route_datasource: RouteDataSource, wsds: WorkSlotDataSource,
+                 fds: FileDataSource) -> None:
         self.ads = datasource
         self.uds = user_datasource
         self.rds = route_datasource
         self.ar = auth_repository
         self.wsds = wsds
+        self.fds = fds
 
     def create_channel(self, token: str, body: CreateChannelBody) -> None:
         user = self.uds.get_user_by_email(self.ar.authorize(token).credentials.email)
@@ -60,8 +64,11 @@ class AuthorRepository:
 
     def create_route(self, token: str, body: CreateRouteBody) -> None:
         author = self.ads.get_author_by_id(self.ar.authorize_author(token).id)
+        file = self.fds.get_file(body.route.photo)
+        if file is None:
+            raise FileNotFound
         self.rds.create_route(author, body.name, body.price, body.time, body.description, body.start_latitude,
-                              body.start_longitude, body.photo)
+                              body.start_longitude, file)
 
     def update_route(self, token: str, body: UpdateRouteBody) -> None:
         author = self.ads.get_author_by_id(self.ar.authorize_author(token).id)
@@ -69,9 +76,12 @@ class AuthorRepository:
         if route is None:
             raise RouteDoesntExists
         if route.author == author:
+            file = self.fds.get_file(body.route.photo)
+            if file is None:
+                raise FileNotFound
             self.rds.update_route(route, body.route.name, body.route.price, body.route.time,
                                   body.route.description, body.route.start_latitude,
-                                  body.route.start_longitude, body.route.photo)
+                                  body.route.start_longitude, file)
         else:
             raise YouDontAuthorOfThisRoute
 
