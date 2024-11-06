@@ -13,6 +13,7 @@ db = PostgresqlDatabase(
     host=EnvironmentDataSource.get_pg_host()
 )
 
+
 class BaseDatabaseModel(Model):
     id = PrimaryKeyField()
     created_at = DateTimeField(default=datetime.datetime.now)

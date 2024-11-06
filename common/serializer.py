@@ -11,7 +11,7 @@ def serialize_to_user_dto(obj: Any) -> Optional[UserDto]:
     if t is UserDB:
         return UserDto(name=obj.name,
                        credentials=CredentialsDto(email=obj.email, password=obj.password),
-                       photo=obj.photo)
+                       photo=None if obj.photo is None else obj.photo.id)
     elif t is RegistrationBody:
         return UserDto(name=obj.name,
                        credentials=CredentialsDto(email=obj.email, password=obj.password),
@@ -37,5 +37,5 @@ def serialize_to_route_dto(obj: Any) -> Optional[RouteDto]:
     t = type(obj)
     if t is RouteDB:
         return RouteDto(obj.id, obj.name, obj.price, obj.time, obj.description, obj.start_latitude,
-                        obj.start_longitude, obj.photo)
+                        obj.start_longitude, None if obj.photo is None else obj.photo.id)
     return None

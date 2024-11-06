@@ -16,11 +16,11 @@
         </library>
       </libraries>
     </data-source>
-    <data-source source="LOCAL" name="template1@172.27.42.198" uuid="7ca7a598-a684-4c2e-928a-28cd402b7838">
+    <data-source source="LOCAL" name="vrtdb@172.27.42.198" uuid="7ca7a598-a684-4c2e-928a-28cd402b7838">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://172.27.42.198:5432/template1</jdbc-url>
+      <jdbc-url>jdbc:postgresql://172.27.42.198:5432/vrtdb</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

@@ -33,7 +33,7 @@ class RouteDto:
     description: str
     start_latitude: float
     start_longitude: float
-    photo: str
+    photo: int
 
 
 @dataclass

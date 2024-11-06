@@ -2,6 +2,7 @@ from peewee import ForeignKeyField, TextField, IntegerField, FloatField
 
 from data.database.models.author import AuthorDB
 from data.database.database import BaseDatabaseModel
+from data.database.models.file import FileDB
 
 
 class RouteDB(BaseDatabaseModel):
@@ -12,7 +13,7 @@ class RouteDB(BaseDatabaseModel):
     description = TextField()
     start_latitude = FloatField()
     start_longitude = FloatField()
-    photo = TextField()
+    photo = ForeignKeyField(FileDB)
 
     class Meta:
         table_name = "routes"
