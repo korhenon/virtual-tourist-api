@@ -64,7 +64,7 @@ class AuthorRepository:
 
     def create_route(self, token: str, body: CreateRouteBody) -> None:
         author = self.ads.get_author_by_id(self.ar.authorize_author(token).id)
-        file = self.fds.get_file(body.route.photo)
+        file = self.fds.get_file(body.photo)
         if file is None:
             raise FileNotFound
         self.rds.create_route(author, body.name, body.price, body.time, body.description, body.start_latitude,
