@@ -28,7 +28,7 @@ class ReservationBody(BaseModel):
 class Author(BaseModel):
     id: int
     name: str
-    photo: Optional[str]
+    photo: Optional[int]
     is_subscribe: bool
     subscribers_count: int
 
@@ -42,7 +42,7 @@ class Route(BaseModel):
     description: str
     start_latitude: float
     start_longitude: float
-    photo: str
+    photo: int
     mean_mark: float
 
 
