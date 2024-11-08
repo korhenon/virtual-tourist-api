@@ -5,7 +5,7 @@ from data.database import RouteDB, CommentDB
 
 class CommentDataSource:
     @staticmethod
-    def get_mean_mark(route: RouteDB) -> int:
+    def get_mean_mark(route: RouteDB) -> float:
         result = CommentDB.select(fn.AVG(CommentDB.mark)).where(CommentDB.route == route).scalar()
         if result is None:
             return 0
