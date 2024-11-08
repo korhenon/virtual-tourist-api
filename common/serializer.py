@@ -1,7 +1,8 @@
+import datetime
 from typing import Any, Optional
 
-from common.dto import UserDto, CredentialsDto, AuthorDto, RouteDto
-from data.database import AuthorDB, RouteDB
+from common.dto import UserDto, CredentialsDto, AuthorDto, RouteDto, CommentDto
+from data.database import AuthorDB, RouteDB, CommentDB
 from data.database.user import UserDB
 from router.auth.models import RegistrationBody, LoginBody
 
@@ -38,4 +39,12 @@ def serialize_to_route_dto(obj: Any) -> Optional[RouteDto]:
     if t is RouteDB:
         return RouteDto(obj.id, obj.name, obj.price, obj.time, obj.description, obj.start_latitude,
                         obj.start_longitude, None if obj.photo is None else obj.photo.id)
+    return None
+
+
+def serialize_to_comment_dto(obj: Any) -> Optional[CommentDto]:
+    t = type(obj)
+    if t is CommentDB:
+        return CommentDto(obj.id, serialize_to_route_dto(obj.route), serialize_to_user_dto(obj.user),
+                          obj.created_at.date(), obj.mark, obj.text)
     return None

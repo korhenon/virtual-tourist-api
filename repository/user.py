@@ -1,9 +1,11 @@
 import datetime
 import math
 
-from common.dto import TimeForReservationDto, SlotWithReservationsDto, RouteForUser
-from common.serializer import serialize_to_route_dto, serialize_to_author_dto
+from common.dto import TimeForReservationDto, SlotWithReservationsDto, RouteForUser, RouteFull
+from common.serializer import serialize_to_route_dto, serialize_to_author_dto, serialize_to_comment_dto
+from data.database import CommentDB
 from data.database.author import AuthorDataSource
+from data.database.comment import CommentDataSource
 from data.database.reservations import ReservationsDataSource
 from data.database.route import RouteDataSource
 from data.database.subscription import SubscriptionDataSource
@@ -37,7 +39,7 @@ class ThisTimeNotInSlotBorders(Exception):
 class UserRepository:
     def __init__(self, uds: UserDataSource, ads: AuthorDataSource, sds: SubscriptionDataSource,
                  ar: AuthRepository, rds: RouteDataSource, wsds: WorkSlotDataSource,
-                 reds: ReservationsDataSource) -> None:
+                 reds: ReservationsDataSource, cds: CommentDataSource) -> None:
         self.uds = uds
         self.ads = ads
         self.sds = sds
@@ -45,6 +47,7 @@ class UserRepository:
         self.wsds = wsds
         self.reds = reds
         self.ar = ar
+        self.cds = cds
 
     def subscribe(self, token: str, body: SubscriptionBody) -> None:
         user = self.uds.get_user_by_email(self.ar.authorize(token).credentials.email)
@@ -136,6 +139,23 @@ class UserRepository:
             serialize_to_route_dto(x),
             serialize_to_author_dto(x.author),
             self.sds.get_subscribers_count(x.author),
-            self.sds.check_subscription(user, x.author)
+            self.sds.check_subscription(user, x.author),
+            self.cds.get_mean_mark(x)
         ), self.rds.get_routes()))
         return routes
+
+    def get_full_route_info(self, token: str, route_id: int) -> RouteFull:
+        user = self.uds.get_user_by_email(self.ar.authorize(token).credentials.email)
+        route = self.rds.get_route_by_id(route_id)
+        if route is None:
+            raise RouteDoesntExists
+        comments = self.cds.get_comments(route)
+        return RouteFull(
+            serialize_to_route_dto(route),
+            serialize_to_author_dto(route.author),
+            self.sds.get_subscribers_count(route.author),
+            self.sds.check_subscription(user, route.author),
+            self.cds.get_mean_mark(route),
+            len(comments),
+            list(map(serialize_to_comment_dto, comments))
+        )

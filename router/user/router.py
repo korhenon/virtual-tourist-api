@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Response
 
-from common.dto import RouteForUser
 from data.database.author import AuthorDataSource
+from data.database.comment import CommentDataSource
 from data.database.reservations import ReservationsDataSource
 from data.database.route import RouteDataSource
 from data.database.subscription import SubscriptionDataSource
@@ -12,11 +12,11 @@ from repository.user import UserRepository, UserAlreadyHaveSubscribedToAuthor, U
     ThisTimeAlreadyReserved, RouteAndSlotAuthorsDontEqual, RouteDoesntExists, SlotDoesntExists, ThisTimeNotInSlotBorders
 from router.models import TokenHeader, MessageResponse
 from router.user.models import SubscriptionBody, TimeForReservation, SlotWithTimesForReservation, ReservationBody, \
-    RouteResponse, Route, Author
+    RouteResponse, Route, Author, FullRouteResponse, FullRoute, Comment, CommentUser
 
 repository = UserRepository(UserDataSource(), AuthorDataSource(), SubscriptionDataSource(),
                             AuthRepository(UserDataSource(), AuthorDataSource()), RouteDataSource(),
-                            WorkSlotDataSource(), ReservationsDataSource())
+                            WorkSlotDataSource(), ReservationsDataSource(), CommentDataSource())
 router = APIRouter(prefix="/user", tags=["User"])
 
 
@@ -98,10 +98,49 @@ async def get_recommendations(response: Response, token: TokenHeader = None) -> 
                     price=x.route.price,
                     time=x.route.time,
                     description=x.route.description,
-                    start_latitude=x.route.start_latitude,
-                    start_longitude=x.route.start_longitude,
                     photo=x.route.photo,
                     mean_mark=x.mean_mark), routes)))
     except NotAuthorized:
         response.status_code = 401
         return RouteResponse(message="Не авторизованный запрос!")
+
+
+@router.get("/route/{route_id}")
+async def get_route(route_id: int, response: Response, token: TokenHeader = None) -> FullRouteResponse:
+    try:
+        res = repository.get_full_route_info(token, route_id)
+        return FullRouteResponse(
+            message="Успех!",
+            route=FullRoute(
+                id=res.route.id,
+                author=Author(
+                    id=res.author.id,
+                    name=res.author.name,
+                    photo=res.author.user.photo,
+                    is_subscribe=res.is_user_subscribed,
+                    subscribers_count=res.author_subscribers,
+                ),
+                name=res.route.name,
+                price=res.route.price,
+                time=res.route.time,
+                description=res.route.description,
+                photo=res.route.photo,
+                mean_mark=res.mean_mark,
+                comments_count=res.comments_count,
+                comments=list(map(lambda x: Comment(
+                    user=CommentUser(
+                        name=x.user.name,
+                        photo=x.user.photo
+                    ),
+                    date=x.date,
+                    mark=x.mark,
+                    text=x.text,
+                ), res.comments))
+            )
+        )
+    except NotAuthorized:
+        response.status_code = 401
+        return FullRouteResponse(message="Не авторизованный запрос!")
+    except RouteDoesntExists:
+        response.status_code = 400
+        return FullRouteResponse(message="Маршрут не существует!")

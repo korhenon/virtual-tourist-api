@@ -40,10 +40,38 @@ class Route(BaseModel):
     price: int
     time: int
     description: str
-    start_latitude: float
-    start_longitude: float
     photo: int
     mean_mark: float
+
+
+class CommentUser(BaseModel):
+    name: str
+    photo: Optional[int]
+
+
+class Comment(BaseModel):
+    user: CommentUser
+    date: datetime.date
+    mark: int
+    text: str
+
+
+class FullRoute(BaseModel):
+    id: int
+    author: Author
+    name: str
+    price: int
+    time: int
+    description: str
+    photo: int
+    mean_mark: float
+    comments_count: int
+    comments: list[Comment]
+
+
+class FullRouteResponse(BaseModel):
+    message: str
+    route: FullRoute
 
 
 class RouteResponse(BaseModel):

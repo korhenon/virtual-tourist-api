@@ -50,9 +50,30 @@ class SlotWithReservationsDto:
 
 
 @dataclass
+class CommentDto:
+    id: int
+    route: RouteDto
+    user: UserDto
+    date: datetime.date
+    mark: int
+    text: str
+
+
+@dataclass
 class RouteForUser:
     route: RouteDto
     author: AuthorDto
     author_subscribers: int
     is_user_subscribed: bool
-    mean_mark: float = 4.5
+    mean_mark: float
+
+
+@dataclass
+class RouteFull:
+    route: RouteDto
+    author: AuthorDto
+    author_subscribers: int
+    is_user_subscribed: bool
+    mean_mark: float
+    comments_count: int
+    comments: list[CommentDto]
