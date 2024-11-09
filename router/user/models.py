@@ -67,6 +67,8 @@ class FullRoute(BaseModel):
     mean_mark: float
     comments_count: int
     comments: list[Comment]
+    start_latitude: float
+    start_longitude: float
 
 
 class FullRouteResponse(BaseModel):

@@ -135,7 +135,9 @@ async def get_route(route_id: int, response: Response, token: TokenHeader = None
                     date=x.date,
                     mark=x.mark,
                     text=x.text,
-                ), res.comments))
+                ), res.comments)),
+                start_latidude=res.route.start_latitude,
+                start_longitude=res.route.start_longitude
             )
         )
     except NotAuthorized:
