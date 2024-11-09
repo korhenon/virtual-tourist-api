@@ -71,7 +71,7 @@ class FullRoute(BaseModel):
 
 class FullRouteResponse(BaseModel):
     message: str
-    route: FullRoute
+    route: Optional[FullRoute] = None
 
 
 class RouteResponse(BaseModel):
