@@ -136,7 +136,7 @@ async def get_route(route_id: int, response: Response, token: TokenHeader = None
                     mark=x.mark,
                     text=x.text,
                 ), res.comments)),
-                start_latidude=res.route.start_latitude,
+                start_latitude=res.route.start_latitude,
                 start_longitude=res.route.start_longitude
             )
         )
